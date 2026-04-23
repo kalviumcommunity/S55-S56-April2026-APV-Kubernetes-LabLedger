@@ -2,7 +2,8 @@
 
 **LabLedger** is a high-performance, professional laboratory supply chain ledger designed to streamline consumable management. It provides a real-time, role-based platform for tracking inventory, recording usage, and maintaining a comprehensive audit trail for modern research environments.
 
-![Dashboard Preview](![alt text](image.png))
+<img width="1917" height="859" alt="image" src="https://github.com/user-attachments/assets/8a9ec14d-fda0-4b57-9a3f-8e414cdc8d98" />
+
 
 ---
 
@@ -65,11 +66,11 @@ npm run dev
 
 | Dashboard View | Inventory Management |
 | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/600x400?text=Analytics+Dashboard) | ![Inventory](https://via.placeholder.com/600x400?text=Inventory+Control) |
+| <img width="1917" height="859" alt="image" src="https://github.com/user-attachments/assets/cbbdce99-c350-4d34-95c5-f4b488e4abb8" /> | <img width="1912" height="852" alt="image" src="https://github.com/user-attachments/assets/f9274385-d270-4a0a-8810-2fa59e0d88d1" /> |
 
-| Usage Logging | Dark Mode Support |
+| Usage Logging | Inventory Analytics |
 | :---: | :---: |
-| ![Usage](https://via.placeholder.com/600x400?text=Atomic+Usage+Logging) | ![DarkMode](https://via.placeholder.com/600x400?text=Premium+Dark+Interface) |
+| <img width="1808" height="832" alt="image" src="https://github.com/user-attachments/assets/315598c6-81c3-46c8-a7c7-10e909235404" /> | <img width="1915" height="780" alt="image" src="https://github.com/user-attachments/assets/34c4b765-ec6f-4e13-a1d4-13f764515bb4" /> |
 
 ---
 
