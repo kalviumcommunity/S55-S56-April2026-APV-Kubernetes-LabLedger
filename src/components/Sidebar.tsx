@@ -12,14 +12,10 @@ import {
   LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 type MenuItem = {
   id: string;
@@ -43,10 +39,9 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemSelect }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { signOut, profile } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  const isAdmin = profile?.role === 'admin';
   const visibleMenuItems = menuItems;
 
   const handleSignOut = async () => {

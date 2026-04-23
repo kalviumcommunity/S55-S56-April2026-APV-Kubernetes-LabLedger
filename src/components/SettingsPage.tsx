@@ -8,11 +8,9 @@ import {
   Shield, 
   Database, 
   Monitor,
-  Globe,
   Mail,
-  Lock,
   Loader2,
-  CheckCircle2
+  Lock as LockIcon
 } from 'lucide-react';
 import { settingsService, type UserProfile } from '../services/settingsService';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,7 +27,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ isDarkMode, onToggleDarkMod
   const [profile, setProfile] = useState<UserProfile>({
     full_name: '',
     email: '',
-    role: '' as any
+    role: '' as UserProfile['role']
   });
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,7 +39,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ isDarkMode, onToggleDarkMod
       try {
         const data = await settingsService.getProfile(user.id);
         setProfile(data);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to load profile:', err);
       } finally {
         setLoading(false);
@@ -59,9 +57,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ isDarkMode, onToggleDarkMod
       setShowToast(true);
       if (onProfileUpdate) onProfileUpdate();
       setTimeout(() => setShowToast(false), 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       console.error('Save failed:', err);
-      alert(`Save failed: ${err.message || 'Unknown error'}. \n\nCheck if profiles table exists and RLS is disabled or correctly set.`);
+      alert(`Save failed: ${errorMessage}. \n\nCheck if profiles table exists and RLS is disabled or correctly set.`);
     } finally {
       setIsSaving(false);
     }
@@ -260,7 +259,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ isDarkMode, onToggleDarkMod
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <section className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-12 shadow-sm text-center">
                  <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4">
-                   <Lock size={32} />
+                   <LockIcon size={32} />
                  </div>
                  <h3 className="font-bold text-slate-800 dark:text-white text-lg">Under Maintenance</h3>
                  <p className="text-slate-400 text-sm mt-2 max-w-xs mx-auto">
@@ -274,11 +273,5 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ isDarkMode, onToggleDarkMod
     </div>
   );
 };
-
-const ChevronRight = ({ size, className }: { size: number, className: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="m9 18 6-6-6-6"/>
-  </svg>
-);
 
 export default SettingsPage;

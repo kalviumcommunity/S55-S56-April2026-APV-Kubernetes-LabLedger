@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
     );
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', userId)
         .single();
 
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as { data: UserProfile | null; error: Error | null };
 
       if (error) {
         setProfile({
@@ -49,14 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setProfile(data as UserProfile);
       }
-    } catch (err) {
+    } catch {
       setProfile({
         full_name: 'New User',
         email: user?.email || '',
         role: 'staff'
       });
     }
-  };
+  }, [user?.email]);
 
   useEffect(() => {
     let mounted = true;
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fetchProfile(session.user.id);
           }
         }
-      } catch (err) {
+      } catch {
         // Auth error handled by setting loading false
       } finally {
         if (mounted) {
@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -121,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

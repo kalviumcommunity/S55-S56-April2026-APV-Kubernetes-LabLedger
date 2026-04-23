@@ -19,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({
   children 
 }) => {
   const { profile } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [isDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
 
@@ -33,7 +33,6 @@ const Layout: React.FC<LayoutProps> = ({
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
   return (
     <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen text-slate-800 dark:text-slate-50 selection:bg-sky-100 dark:selection:bg-sky-500/30 transition-colors duration-300">

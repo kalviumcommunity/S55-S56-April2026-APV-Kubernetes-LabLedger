@@ -1,10 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { 
   BookOpen, 
   Search, 
   Filter, 
   Calendar, 
-  ArrowUpDown, 
   Download, 
   Loader2, 
   Package, 
@@ -25,7 +24,6 @@ const LedgerPage: React.FC<{ searchQuery?: string }> = ({ searchQuery = '' }) =>
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
@@ -37,22 +35,22 @@ const LedgerPage: React.FC<{ searchQuery?: string }> = ({ searchQuery = '' }) =>
     }
   }, [searchQuery]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
       const data = await inventoryService.fetchTransactions();
       setTransactions(data);
-    } catch (err) {
-      setError('Failed to load transaction history.');
+    } catch {
+      console.error('Failed to load transaction history.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user, loadData]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {

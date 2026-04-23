@@ -25,7 +25,7 @@ export const inventoryService = {
     return data as InventoryItem;
   },
 
-  async updateItemQuantity(id: number, quantity: number, _userId: string): Promise<InventoryItem> {
+  async updateItemQuantity(id: number, quantity: number): Promise<InventoryItem> {
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .update({ quantity })
@@ -66,8 +66,9 @@ export const inventoryService = {
     if (error) throw error;
 
     const counts: Record<string, number> = {};
-    data.forEach((item: any) => {
-      counts[item.category] = (counts[item.category] || 0) + 1;
+    data.forEach((item) => {
+      const category = (item as { category: string }).category;
+      counts[category] = (counts[category] || 0) + 1;
     });
 
     return Object.entries(counts).map(([category, count]) => ({ category, count }));
@@ -134,10 +135,10 @@ export const inventoryService = {
         dailyMap[d.toISOString().split('T')[0]] = 0;
     }
 
-    data.forEach((t: any) => {
-        const d = t.created_at.split('T')[0];
+    data.forEach((t) => {
+        const d = (t as { created_at: string }).created_at.split('T')[0];
         if (dailyMap[d] !== undefined) {
-            dailyMap[d] += t.quantity;
+            dailyMap[d] += (t as { quantity: number }).quantity;
         }
     });
 
@@ -158,8 +159,9 @@ export const inventoryService = {
     if (error) throw error;
 
     const totals: Record<string, number> = {};
-    data.forEach((t: any) => {
-        totals[t.item_name] = (totals[t.item_name] || 0) + t.quantity;
+    data.forEach((t) => {
+        const item = t as { item_name: string; quantity: number };
+        totals[item.item_name] = (totals[item.item_name] || 0) + item.quantity;
     });
 
     return Object.entries(totals)
@@ -176,8 +178,9 @@ export const inventoryService = {
     if (error) throw error;
 
     const volumes: Record<string, number> = {};
-    data.forEach((item: any) => {
-        volumes[item.category] = (volumes[item.category] || 0) + item.quantity;
+    data.forEach((item) => {
+        const catItem = item as { category: string; quantity: number };
+        volumes[catItem.category] = (volumes[catItem.category] || 0) + catItem.quantity;
     });
 
     return Object.entries(volumes).map(([category, volume]) => ({ category, volume }));

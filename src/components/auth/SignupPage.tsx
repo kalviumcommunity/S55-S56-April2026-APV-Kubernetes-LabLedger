@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
-import { FlaskConical, Mail, Lock, Loader2, AlertCircle, UserPlus, CheckCircle2, User } from 'lucide-react';
+import { Mail, Lock as LockIcon, Loader2, AlertCircle, UserPlus, CheckCircle2, User } from 'lucide-react';
 
 const SignupPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -138,7 +138,7 @@ const SignupPage: React.FC = () => {
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Password</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                    <Lock size={18} />
+                    <LockIcon size={18} />
                   </div>
                   <input
                     type="password"
@@ -155,7 +155,7 @@ const SignupPage: React.FC = () => {
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Confirm Password</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                    <Lock size={18} />
+                    <LockIcon size={18} />
                   </div>
                   <input
                     type="password"

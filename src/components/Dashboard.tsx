@@ -2,32 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   AreaChart, Area,
   BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import {
   Package, AlertTriangle, Clock, TrendingUp,
-  ChevronRight, Beaker, ThermometerSun, FlaskConical,
+  FlaskConical,
   ArrowUpRight, ArrowDownRight, ShieldAlert, CalendarX2, Loader2,
 } from 'lucide-react';
 import { inventoryService } from '../services/inventoryService';
-import type { InventoryItem, Status, UsageLog } from '../types/inventory';
+import type { InventoryItem, UsageLog } from '../types/inventory';
 import { useAuth } from '../contexts/AuthContext';
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+import { getDaysLeft, today } from '../utils/inventory';
 
-function getDaysLeft(expiry: string) {
-  const exp = new Date(expiry);
-  const diffTime = exp.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
-function getStatus(item: InventoryItem): Status {
-  const daysLeft = getDaysLeft(item.expiry);
-  if (daysLeft < 0) return 'Expired';
-  if (item.quantity <= item.min_stock) return 'Low';
-  return 'In Stock';
-}
 
 const severityColors: Record<string, string> = {
   critical: 'bg-rose-50 border-rose-200 text-rose-700',
@@ -72,12 +59,22 @@ const SummaryCard = ({
   </div>
 );
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl shadow-lg p-3 text-sm">
       <p className="font-semibold text-slate-700 dark:text-slate-200 mb-2">{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
           <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
           <span className="capitalize">{p.name}:</span>
@@ -89,7 +86,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const DashboardPage: React.FC = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [categoryData, setCategoryData] = useState<{ category: string; count: number }[]>([]);
   const [recentLogs, setRecentLogs] = useState<UsageLog[]>([]);
@@ -329,7 +326,7 @@ const DashboardPage: React.FC = () => {
           <div className="space-y-3">
             {expiringSoon.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-8">No upcoming expirations in 30 days.</p>
-            ) : expiringSoon.map((item: any) => {
+            ) : expiringSoon.map((item) => {
               return (
                 <div key={item.id} className={`p-3 rounded-xl border ${severityColors[item.severity]} dark:bg-opacity-5 dark:border-opacity-20`}>
                   <div className="flex items-start justify-between gap-2">

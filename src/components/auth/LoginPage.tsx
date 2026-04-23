@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
-import { FlaskConical, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { FlaskConical, Mail, Lock as LockIcon, Loader2, AlertCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -82,7 +82,7 @@ const LoginPage: React.FC = () => {
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                  <Lock size={18} />
+                  <LockIcon size={18} />
                 </div>
                 <input
                   type="password"

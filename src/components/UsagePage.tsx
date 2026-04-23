@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Activity,
-  History, 
   Send, 
   AlertCircle, 
   CheckCircle2, 
@@ -43,7 +42,7 @@ const UsagePage: React.FC = () => {
         if (profile?.full_name) {
           setForm(prev => ({ ...prev, user: profile.full_name }));
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load items. Please refresh.');
       } finally {
         setLoading(false);
@@ -91,8 +90,9 @@ const UsagePage: React.FC = () => {
       
       const updatedItems = await inventoryService.fetchItems();
       setItems(updatedItems);
-    } catch (err: any) {
-      setError(err.message || 'Failed to record usage. Please try again.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to record usage. Please try again.';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }

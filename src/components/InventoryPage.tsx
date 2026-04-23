@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Plus, Search, X, ChevronUp, ChevronDown, ChevronsUpDown,
   Package, AlertTriangle, XCircle, Filter, FlaskConical, Loader2, Trash2, Edit2, RotateCw,
@@ -7,27 +7,13 @@ import type { InventoryItem, Status, InventoryItemInsert } from '../types/invent
 import { inventoryService } from '../services/inventoryService';
 import { useAuth } from '../contexts/AuthContext';
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-function getStatus(item: InventoryItem): Status {
-  const exp = new Date(item.expiry);
-  if (exp < today) return 'Expired';
-  if (item.quantity <= item.min_stock) return 'Low';
-  return 'In Stock';
-}
-
-const STATUS_STYLE: Record<Status, string> = {
-  'In Stock': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'Low': 'bg-amber-50 text-amber-700 border border-amber-200',
-  'Expired': 'bg-rose-50 text-rose-700 border border-rose-200',
-};
-
-const STATUS_DOT: Record<Status, string> = {
-  'In Stock': 'bg-emerald-500',
-  'Low': 'bg-amber-500',
-  'Expired': 'bg-rose-500',
-};
+import { 
+  getStatus, 
+  STATUS_STYLE, 
+  STATUS_DOT, 
+  INVENTORY_CATEGORIES, 
+  INVENTORY_UNITS 
+} from '../utils/inventory';
 
 const SortIcon = ({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey | null; sortDir: SortDir }) => {
   if (sortKey !== col) return <ChevronsUpDown size={14} className="text-slate-300" />;
@@ -41,8 +27,8 @@ interface ModalProps {
   initialData?: InventoryItem;
 }
 
-const UNITS = ['bottles', 'vials', 'pcs', 'packs', 'kg', 'g', 'mg', 'L', 'mL', 'µL', 'units', 'pairs'];
-const CATEGORIES = ['Chemicals', 'Reagents', 'Enzymes', 'Consumables', 'Dyes', 'Equipment', 'Glassware'];
+const UNITS = INVENTORY_UNITS;
+const CATEGORIES = INVENTORY_CATEGORIES;
 
 const InventoryModal: React.FC<ModalProps> = ({ onClose, onSave, initialData }) => {
   const isEdit = !!initialData;
@@ -83,7 +69,7 @@ const InventoryModal: React.FC<ModalProps> = ({ onClose, onSave, initialData }) 
         category: form.category 
       });
       onClose();
-    } catch (err) {
+    } catch {
       setErrors({ submit: 'Failed to save item. Please try again.' });
     } finally {
       setIsSubmitting(false);
@@ -244,23 +230,23 @@ const InventoryPage: React.FC<{ searchQuery?: string }> = ({ searchQuery = '' })
     }
   }, [searchQuery]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
     setError(null);
     try {
       const data = await inventoryService.fetchItems();
       setItems(data);
-    } catch (err: any) {
-      setError('Failed to load inventory. Check your network or Supabase connection.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load inventory. Check your network or Supabase connection.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user, loadData]);
 
   const categories = useMemo(() => ['All', ...Array.from(new Set(items.map(i => i.category))).sort()], [items]);
 
@@ -281,8 +267,8 @@ const InventoryPage: React.FC<{ searchQuery?: string }> = ({ searchQuery = '' })
 
     if (sortKey && sortDir) {
       list.sort((a, b) => {
-        let av: string | number = sortKey === 'status' ? a.status : (a as any)[sortKey];
-        let bv: string | number = sortKey === 'status' ? b.status : (b as any)[sortKey];
+        let av: string | number = sortKey === 'status' ? a.status : (a as Record<string, unknown>)[sortKey] as string | number;
+        let bv: string | number = sortKey === 'status' ? b.status : (b as Record<string, unknown>)[sortKey] as string | number;
         if (typeof av === 'string') av = av.toLowerCase();
         if (typeof bv === 'string') bv = bv.toLowerCase();
         if (av < bv) return sortDir === 'asc' ? -1 : 1;
@@ -344,7 +330,7 @@ const InventoryPage: React.FC<{ searchQuery?: string }> = ({ searchQuery = '' })
     try {
       await inventoryService.deleteItem(id);
       setItems(prev => prev.filter(i => i.id !== id));
-    } catch (err) {
+    } catch {
       alert('Failed to delete item.');
     }
   };
