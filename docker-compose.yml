@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # These are fed into the build step (from host .env if present)
+        # Fallback values can also be provided here, but best injected via CLI
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    image: lab-ledger-frontend:latest
+    container_name: lab-ledger-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Optional environment if runtime env var injection was supported later
+    # environment:
+    #   - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}

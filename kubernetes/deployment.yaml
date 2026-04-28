@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-ledger-frontend
+  labels:
+    app: lab-ledger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lab-ledger
+  template:
+    metadata:
+      labels:
+        app: lab-ledger
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/your-username/lab-ledger-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          # Note: Runtime ENV vars are included for completeness if Vite logic changes,
+          # but current Vite setup requires these injected at BUILD TIME.
+          envFrom:
+            - secretRef:
+                name: lab-ledger-secrets
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

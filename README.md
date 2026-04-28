@@ -62,6 +62,37 @@ npm run dev
 
 ---
 
+## 🚢 Production Deployment
+
+### Architecture
+Frontend (Docker, Nginx, Kubernetes) → External Supabase API
+*Note: Because Supabase is a fully managed Backend-as-a-Service, the frontend operates as a static Single Page Application (SPA) served by Nginx. There is no custom backend container.*
+
+### Environment Variables Context (Vite + K8s)
+> **WARNING**: Because this is a Vite-based application, environment variables (`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`) are injected into the JavaScript bundle at **BUILD TIME**.
+> Kubernetes Secrets or runtime environment variables will **NOT** automatically update the application unless the Docker image is rebuilt. Guarantee that you provide these variables during your CI/CD build step (e.g. GitHub Actions).
+
+### Deploying via Docker & Docker Compose
+1. Ensure `.env.production` contains your production variables (see `.env.example`).
+2. Build and run using Docker Compose:
+```bash
+docker-compose --env-file .env.production up -d --build
+```
+3. The frontend service will be available at `http://localhost:3000`.
+
+### Deploying to Kubernetes
+1. Configure credentials for CI/CD in `kubernetes/secrets.yaml`.
+2. Update TLS certificates and hostnames in `kubernetes/ingress.yaml`.
+3. Apply the resources to your cluster:
+```bash
+kubectl apply -f kubernetes/secrets.yaml
+kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f kubernetes/service.yaml
+kubectl apply -f kubernetes/ingress.yaml
+```
+
+---
+
 ## 📸 Screenshots
 
 | Dashboard View | Inventory Management |
